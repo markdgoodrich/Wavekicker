@@ -31,6 +31,21 @@ def draw_background():
     if os.path.isfile(background_file):
         screen.blit(pygame.image.load(background_file), [0, 0])
 
+#   How to handle dynamic movement
+# Want it slower when in water
+# Check Y position of player
+#   If 662- 700: normal
+#   if 662 - 200: quartered
+#   else: slow
+def player_speed(playerY):
+    if playerY > 662:
+        speed = 8
+    elif playerY < 662 and playerY > 200:
+        speed = 4
+    else:
+        speed = 2
+    return speed
+
 
 # --------------------------------------------------------------------------------------------
 #
@@ -49,16 +64,16 @@ while game_running:
     #   -------------------------
     if event.type == pygame.KEYDOWN:  # KEYDOWN = when tehkey is pressed
         if event.key == pygame.K_LEFT:  # K_LEFT = left arrow key
-            deltaX = -6  # Increment player left by 5 values
+            deltaX = -player_speed(playerY)  # Increment player left by 5 values
 
         if event.key == pygame.K_RIGHT:  # K_RIGHT = right arrow key
-            deltaX = 6  # Increment player left by 5 values
+            deltaX = player_speed(playerY)  # Increment player left by 5 values
 
         if event.key == pygame.K_UP:  # K_LEFT = left arrow key
-            deltaY = -6  # Increment player left by 5 values
+            deltaY = -player_speed(playerY)  # Increment player left by 5 values
 
         if event.key == pygame.K_DOWN:  # K_RIGHT = right arrow key
-            deltaY = 6  # Increment player left by 5  values
+            deltaY = player_speed(playerY)  # Increment player left by 5  values
 
     # If keys are released
     if event.type == pygame.KEYUP:
@@ -71,6 +86,17 @@ while game_running:
     playerX += deltaX
 
     
+
+    #   Player Movement - Out of Frame
+    if playerY < 10:
+        playerY = 10
+    elif playerY >= 850:
+        playerY = 850
+    if playerX < -25:
+        playerX = -25
+    elif playerX >= 575:
+        playerX = 575
+
     draw_background()
 
     draw_player(playerX, playerY)
