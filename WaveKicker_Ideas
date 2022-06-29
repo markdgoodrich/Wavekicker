@@ -31,5 +31,37 @@ Sand obstances
 	- sunbathers
 
 
-
+---------------------------------
 Movement slows in deeper water
+
+
+Surface.get_at((x, y)): return Color
+pygame.Surface.get_at
+	get the color value at a single pixel
+
+screen = pygame.display.set_mode(size)
+
+pixel = screen.get_at(pygame.mouse.get_pos()) #gets the pixel on the screen surface
+
+With every update:
+	Check players position
+	Get color from player's position
+	If yellow: normal speed
+	elif light blue: less speed
+
+dark blue: 	(2, 64, 86, 255)
+light blue: 	(35, 81, 215, 255)
+sand: 		(47, 159, 200, 255)
+---------------------------------
+
+Have Waves coming in
+
+	Draw waves
+	Have their movements
+		Dynamic speed?
+		move top-Down
+	Collision with player
+		if player kicks, wave breaks
+		Otherwise, player stumbles
+
+----------------------------------

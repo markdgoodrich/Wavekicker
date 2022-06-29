@@ -25,11 +25,16 @@ deltaY = 0
 def draw_player(x,y):
     screen.blit(player, (x,y)) #Draw player at specific inputs
 
-def draw_background():
-    background_file = "./ert/background.png"
-     #   Check to see if it exists
-    if os.path.isfile(background_file):
-        screen.blit(pygame.image.load(background_file), [0, 0])
+#edit this so that water moves when certain conditions are met
+background_timer = 0
+background_file = "./ert/background_extend.png"
+background = pygame.image.load(background_file)
+
+def draw_background(n):     #   Check to see if it exists
+    if os.path.isfile(background_file) and n < 300:
+        screen.blit(background, [0, n-300]) #y=-300 starting position
+    else:
+        screen.blit(background, [0, 0]) #stops moving the picture. Game Over
 
 #   How to handle dynamic movement
 # Want it slower when in water
@@ -37,15 +42,22 @@ def draw_background():
 #   If 662- 700: normal
 #   if 662 - 200: quartered
 #   else: slow
-def player_speed(playerY):
-    if playerY > 662:
-        speed = 8
-    elif playerY < 662 and playerY > 200:
-        speed = 4
+def player_speed(playerX, playerY): #dependent on screen, not background. so text adn assets will cause speed shifts
+    surf_color = background.get_at((playerX, playerY))[0]  #gets the B color at the player's position
+    print(surf_color)
+    
+    if surf_color > 43:
+        speed = 6
+    elif surf_color <= 43 and surf_color >= 10:
+        speed = 3
     else:
         speed = 2
     return speed
 
+def flashing_message(message):
+    font = pygame.font.Font("./fonts/Karate.ttf", 32)
+    message_display = font.render(message, True, (255, 255, 255))
+    screen.blit(message_display, (200, 200))
 
 # --------------------------------------------------------------------------------------------
 #
@@ -64,16 +76,16 @@ while game_running:
     #   -------------------------
     if event.type == pygame.KEYDOWN:  # KEYDOWN = when tehkey is pressed
         if event.key == pygame.K_LEFT:  # K_LEFT = left arrow key
-            deltaX = -player_speed(playerY)  # Increment player left by 5 values
+            deltaX = -player_speed(playerX, playerY)  # Increment player left by 5 values
 
         if event.key == pygame.K_RIGHT:  # K_RIGHT = right arrow key
-            deltaX = player_speed(playerY)  # Increment player left by 5 values
+            deltaX = player_speed(playerX, playerY)  # Increment player left by 5 values
 
         if event.key == pygame.K_UP:  # K_LEFT = left arrow key
-            deltaY = -player_speed(playerY)  # Increment player left by 5 values
+            deltaY = -player_speed(playerX, playerY)  # Increment player left by 5 values
 
         if event.key == pygame.K_DOWN:  # K_RIGHT = right arrow key
-            deltaY = player_speed(playerY)  # Increment player left by 5  values
+            deltaY = player_speed(playerX, playerY)  # Increment player left by 5  values
 
     # If keys are released
     if event.type == pygame.KEYUP:
@@ -92,14 +104,18 @@ while game_running:
         playerY = 10
     elif playerY >= 850:
         playerY = 850
-    if playerX < -25:
-        playerX = -25
+    if playerX < 0:
+        playerX = 0
     elif playerX >= 575:
         playerX = 575
 
-    draw_background()
+    draw_background(background_timer)
+    background_timer += 0.1           #Change this to be a certain criteria, ie missed waves
+    if background_timer >= 300:     #If beach is entirely gone, Game OVer
+        flashing_message("GAME OVER")
 
     draw_player(playerX, playerY)
 
+    #flashing_message("Tides Coming In!!!")
 
     pygame.display.update()
