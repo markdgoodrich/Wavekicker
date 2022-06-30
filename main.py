@@ -13,6 +13,8 @@ screen = pygame.display.set_mode((resolution_X,resolution_Y))
 
 pygame.display.set_caption("Wavekicker 3000")
 
+clock = pygame.time.Clock()
+clock.tick(24)
 
 # Create player and initial position
 player = pygame.image.load("./ert/player.png")
@@ -22,15 +24,22 @@ playerY = 700
 deltaX = 0
 deltaY = 0
 
+kick = pygame.image.load("./ert/player.png")
+
 def draw_player(x,y):
     screen.blit(player, (x,y)) #Draw player at specific inputs
 
+def kick_wave(x,y):
+    screen.blit(kick, (x,y-100)) #Draw kick
+
+    
 #edit this so that water moves when certain conditions are met
 background_timer = 0
 background_file = "./ert/background_extend.png"
 background = pygame.image.load(background_file)
 
 def draw_background(n):     #   Check to see if it exists
+    global background, backfround_file
     if os.path.isfile(background_file) and n < 300:
         screen.blit(background, [0, n-300]) #y=-300 starting position
     else:
@@ -38,13 +47,10 @@ def draw_background(n):     #   Check to see if it exists
 
 #   How to handle dynamic movement
 # Want it slower when in water
-# Check Y position of player
-#   If 662- 700: normal
-#   if 662 - 200: quartered
-#   else: slow
-def player_speed(playerX, playerY): #dependent on screen, not background. so text adn assets will cause speed shifts
-    surf_color = background.get_at((playerX, playerY))[0]  #gets the B color at the player's position
-    print(surf_color)
+#maybe only update every few frames?
+def player_speed(playerX, playerY):
+    #global background_timer                 #gota subtract background timer to properly update surf color
+    surf_color = background.get_at((playerX, abs(playerY-int(background_timer))))[0]  #gets the R color at the player's position    
     
     if surf_color > 43:
         speed = 6
@@ -52,6 +58,7 @@ def player_speed(playerX, playerY): #dependent on screen, not background. so tex
         speed = 3
     else:
         speed = 2
+    print(speed, surf_color, playerY)
     return speed
 
 def flashing_message(message):
@@ -76,16 +83,20 @@ while game_running:
     #   -------------------------
     if event.type == pygame.KEYDOWN:  # KEYDOWN = when tehkey is pressed
         if event.key == pygame.K_LEFT:  # K_LEFT = left arrow key
-            deltaX = -player_speed(playerX, playerY)  # Increment player left by 5 values
+            deltaX = -player_speed(playerX, playerY)  # Increment player left
 
         if event.key == pygame.K_RIGHT:  # K_RIGHT = right arrow key
-            deltaX = player_speed(playerX, playerY)  # Increment player left by 5 values
+            deltaX = player_speed(playerX, playerY)  # Increment player right
 
-        if event.key == pygame.K_UP:  # K_LEFT = left arrow key
-            deltaY = -player_speed(playerX, playerY)  # Increment player left by 5 values
+        if event.key == pygame.K_UP:  # K_UP = up arrow key
+            deltaY = -player_speed(playerX, playerY)  # Increment player up
 
-        if event.key == pygame.K_DOWN:  # K_RIGHT = right arrow key
-            deltaY = player_speed(playerX, playerY)  # Increment player left by 5  values
+        if event.key == pygame.K_DOWN:  # K_DOWN = down arrow key
+            deltaY = player_speed(playerX, playerY)  # Increment player down
+
+        if event.key == pygame.K_SPACE:  # K_DOWN = down arrow key
+            kick_wave(playerX, playerY)
+
 
     # If keys are released
     if event.type == pygame.KEYUP:
@@ -115,7 +126,6 @@ while game_running:
         flashing_message("GAME OVER")
 
     draw_player(playerX, playerY)
-
     #flashing_message("Tides Coming In!!!")
 
     pygame.display.update()
